@@ -6,9 +6,10 @@
     <div class="task-header">
       <input 
         type="checkbox" 
-        [checked]="task.completed"
-        (change)="toggleComplete()"
+        [checked]="task.completed || isSelected"
+        (change)="handleCheckboxChange($event)"
         class="task-checkbox"
+        [class.selection-mode]="isSelected && !task.completed"
       >
       <h3 class="task-title" [class.strikethrough]="task.completed">
         {{ task.title }}
@@ -35,14 +36,6 @@
     <div class="task-actions">
       <button (click)="startEdit()" class="btn btn-edit">
         Edit
-      </button>
-      <button 
-        (click)="task.archived ? unarchiveTask() : archiveTask()" 
-        class="btn"
-        [class.btn-archive]="!task.archived"
-        [class.btn-unarchive]="task.archived"
-      >
-        {{ task.archived ? 'Unarchive' : 'Archive' }}
       </button>
       <button (click)="deleteTask()" class="btn btn-delete">
         Delete

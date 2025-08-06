@@ -155,20 +155,4 @@ export class AppComponent implements OnInit {
       : `${taskIdsToDelete.length} tasks deleted successfully!`;
     this.toastService.show(message, 'success');
   }
-
-  onTaskArchived(archivedTask: Task) {
-    const index = this.tasks.findIndex(t => t.id === archivedTask.id);
-    if (index !== -1) {
-      this.tasks[index] = archivedTask;
-      this.saveTasksToStorage();
-    }
-  }
-
-  onTaskUnarchived(unarchivedTask: Task) {
-    const index = this.tasks.findIndex(t => t.id === unarchivedTask.id);
-    if (index !== -1) {
-      this.tasks[index] = unarchivedTask;
-      this.saveTasksToStorage();
-    }
-  }
 }

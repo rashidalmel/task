@@ -12,11 +12,11 @@ import { ToastService } from '../../services/toast.service';
 })
 export class TaskItemComponent {
   @Input() task!: Task;
+  @Input() isSelected: boolean = false;
   @Output() taskUpdated = new EventEmitter<Task>();
   @Output() taskDeleted = new EventEmitter<number>();
   @Output() taskToggled = new EventEmitter<Task>();
-  @Output() taskArchived = new EventEmitter<Task>();
-  @Output() taskUnarchived = new EventEmitter<Task>();
+  @Output() taskSelectionChanged = new EventEmitter<number>();
 
   isEditing = false;
   editedTask: Partial<Task> = {};
@@ -93,22 +93,14 @@ export class TaskItemComponent {
     this.taskToggled.emit(updatedTask);
   }
 
-  archiveTask() {
-    const archivedTask: Task = {
-      ...this.task,
-      archived: true
-    };
-    this.taskArchived.emit(archivedTask);
-    this.toastService.show('Task archived successfully!', 'success');
-  }
-
-  unarchiveTask() {
-    const unarchivedTask: Task = {
-      ...this.task,
-      archived: false
-    };
-    this.taskUnarchived.emit(unarchivedTask);
-    this.toastService.show('Task unarchived successfully!', 'success');
+  handleCheckboxChange(event: Event) {
+    if (this.isSelected) {
+      // If task is selected, handle selection toggle
+      this.taskSelectionChanged.emit(this.task.id);
+    } else {
+      // If task is not selected, handle completion toggle
+      this.toggleComplete();
+    }
   }
 
   isOverdue(): boolean {

@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CdkDragDrop, CdkDrag, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { trigger, transition, style, animate, query, stagger, group } from '@angular/animations';
+import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { Task } from '../../models/task.model';
 import { TaskItemComponent } from '../task-item/task-item.component';
 
@@ -65,8 +65,6 @@ export class TaskListComponent {
   @Output() tasksReordered = new EventEmitter<Task[]>();
   @Output() tasksBulkCompleted = new EventEmitter<Task[]>();
   @Output() tasksBulkDeleted = new EventEmitter<number[]>();
-  @Output() taskArchived = new EventEmitter<Task>();
-  @Output() taskUnarchived = new EventEmitter<Task>();
 
   currentFilter: FilterType = 'all';
   currentSort: SortType = 'manual';
@@ -74,17 +72,9 @@ export class TaskListComponent {
   selectedTasks: Set<number> = new Set();
   selectAllMode: boolean = false;
   showDeleteConfirmation: boolean = false;
-  showArchived: boolean = false;
 
   get filteredTasks(): Task[] {
-    let filtered = this.tasks;
-
-    // Apply archived filter
-    if (!this.showArchived) {
-      filtered = filtered.filter(task => !task.archived);
-    } else {
-      filtered = filtered.filter(task => task.archived);
-    }
+    let filtered = [...this.tasks];
 
     // Apply search filter
     if (this.searchTerm.trim()) {
@@ -104,7 +94,7 @@ export class TaskListComponent {
         filtered = filtered.filter(task => !task.completed);
         break;
       case 'overdue':
-        filtered = filtered.filter(task => this.isOverdue(task) && !task.archived);
+        filtered = filtered.filter(task => this.isOverdue(task));
         break;
       default:
         // Keep all tasks
@@ -120,15 +110,15 @@ export class TaskListComponent {
   }
 
   get completedTasks(): number {
-    return this.tasks.filter(task => task.completed && !task.archived).length;
+    return this.tasks.filter(task => task.completed).length;
   }
 
   get pendingTasks(): number {
-    return this.tasks.filter(task => !task.completed && !task.archived).length;
+    return this.tasks.filter(task => !task.completed).length;
   }
 
   get overdueTasks(): number {
-    return this.tasks.filter(task => this.isOverdue(task) && !task.archived).length;
+    return this.tasks.filter(task => this.isOverdue(task)).length;
   }
 
   get filteredTasksCount(): number {
@@ -173,14 +163,6 @@ export class TaskListComponent {
 
   onTaskToggled(task: Task) {
     this.taskToggled.emit(task);
-  }
-
-  onTaskArchived(task: Task) {
-    this.taskArchived.emit(task);
-  }
-
-  onTaskUnarchived(task: Task) {
-    this.taskUnarchived.emit(task);
   }
 
   trackByTaskId(index: number, task: Task): number {
@@ -262,28 +244,6 @@ export class TaskListComponent {
     this.showDeleteConfirmation = false;
   }
 
-  toggleArchivedView() {
-    this.showArchived = !this.showArchived;
-    this.selectedTasks.clear();
-    this.selectAllMode = false;
-  }
-
-  archiveTask(task: Task) {
-    this.taskArchived.emit({ ...task, archived: true });
-  }
-
-  unarchiveTask(task: Task) {
-    this.taskUnarchived.emit({ ...task, archived: false });
-  }
-
-  get archivedTasksCount(): number {
-    return this.tasks.filter(task => task.archived).length;
-  }
-
-  get activeTasksCount(): number {
-    return this.tasks.filter(task => !task.archived).length;
-  }
-
   private sortTasks(tasks: Task[]): Task[] {
     switch (this.currentSort) {
       case 'date':
@@ -313,8 +273,21 @@ export class TaskListComponent {
   onDrop(event: CdkDragDrop<Task[]>) {
     // Only allow drag and drop when sort is set to 'manual'
     if (this.currentSort === 'manual' && event.previousIndex !== event.currentIndex) {
+      const filteredTasks = this.filteredTasks;
       const tasksCopy = [...this.tasks];
-      moveItemInArray(tasksCopy, event.previousIndex, event.currentIndex);
+      
+      // Get the actual tasks that were reordered
+      const movedTask = filteredTasks[event.previousIndex];
+      const targetTask = filteredTasks[event.currentIndex];
+      
+      // Find their positions in the original array
+      const originalPrevIndex = tasksCopy.findIndex(t => t.id === movedTask.id);
+      const originalNextIndex = tasksCopy.findIndex(t => t.id === targetTask.id);
+      
+      // Move the item in the original array
+      moveItemInArray(tasksCopy, originalPrevIndex, originalNextIndex);
+      
+      // Emit the reordered array
       this.tasksReordered.emit(tasksCopy);
     }
   }

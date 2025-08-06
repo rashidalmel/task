@@ -46,7 +46,7 @@
         [class.active]="currentFilter === 'all'"
         class="filter-btn"
       >
-        All ({{ showArchived ? archivedTasksCount : activeTasksCount }})
+        All ({{ totalTasks }})
       </button>
       <button 
         (click)="setFilter('pending')" 
@@ -69,12 +69,7 @@
       >
         Overdue ({{ overdueTasks }})
       </button>
-             <button 
-         (click)="toggleArchivedView()" 
-         class="btn archive-filter"
-       >
-         {{ showArchived ? 'Active' : 'Archived' }} ({{ showArchived ? activeTasksCount : archivedTasksCount }})
-       </button>
+
     </div>
   </div>
 
@@ -132,23 +127,13 @@
         [@taskItemAnimation]="task.id"
         [class.task-selected]="isTaskSelected(task.id)"
       >
-        <div class="task-selection-container">
-          <input 
-            type="checkbox" 
-            [checked]="isTaskSelected(task.id)"
-            (change)="toggleTaskSelection(task.id)"
-            class="task-selection-checkbox"
-            [id]="'task-' + task.id"
-          >
-          <label [for]="'task-' + task.id" class="task-selection-label"></label>
-        </div>
         <app-task-item 
           [task]="task"
+          [isSelected]="isTaskSelected(task.id)"
           (taskUpdated)="onTaskUpdated($event)"
           (taskDeleted)="onTaskDeleted($event)"
           (taskToggled)="onTaskToggled($event)"
-          (taskArchived)="onTaskArchived($event)"
-          (taskUnarchived)="onTaskUnarchived($event)"
+          (taskSelectionChanged)="toggleTaskSelection(task.id)"
         ></app-task-item>
       </div>
     </div>
