@@ -1,0 +1,30 @@
+<div class="app-container">
+  <header class="app-header">
+    <div class="header-content">
+      <div class="header-text">
+        <h1>Task Tracker</h1>
+        <p>Manage your tasks efficiently</p>
+      </div>
+      <app-theme-toggle></app-theme-toggle>
+    </div>
+  </header>
+  
+  <main class="app-main">
+    <app-add-task (taskAdded)="onTaskAdded($event)"></app-add-task>
+    <app-task-list 
+      [tasks]="tasks"
+      (taskUpdated)="onTaskUpdated($event)"
+      (taskDeleted)="onTaskDeleted($event)"
+      (taskToggled)="onTaskToggled($event)"
+      (tasksReordered)="onTasksReordered($event)"
+      (tasksBulkCompleted)="onTasksBulkCompleted($event)"
+      (tasksBulkDeleted)="onTasksBulkDeleted($event)"
+      (taskArchived)="onTaskArchived($event)"
+      (taskUnarchived)="onTaskUnarchived($event)"
+    ></app-task-list>
+  </main>
+</div>
+
+<app-toast></app-toast>
+<router-outlet />
+

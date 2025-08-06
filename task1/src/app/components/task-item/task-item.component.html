@@ -1,0 +1,131 @@
+<div class="task-item" 
+     [class.completed]="task.completed"
+     [class.overdue]="isOverdue()"
+     [class]="getPriorityClass()">
+  <div class="task-content" *ngIf="!isEditing">
+    <div class="task-header">
+      <input 
+        type="checkbox" 
+        [checked]="task.completed"
+        (change)="toggleComplete()"
+        class="task-checkbox"
+      >
+      <h3 class="task-title" [class.strikethrough]="task.completed">
+        {{ task.title }}
+      </h3>
+      <span class="priority-badge-top-right" [class]="getPriorityClass()">
+        {{ task.priority || 'Medium' }}
+      </span>
+    </div>
+    
+    <p class="task-description" *ngIf="task.description">
+      {{ task.description }}
+    </p>
+    
+    <div class="task-meta">
+      <small class="task-date">
+        Created: {{ task.createdAt | date:'short' }}
+      </small>
+      <small class="task-due-date" *ngIf="task.dueDate" [class.overdue]="isOverdue()">
+        Due: {{ getDueDateText() }}
+        <span class="overdue-badge" *ngIf="isOverdue()">OVERDUE</span>
+      </small>
+    </div>
+    
+    <div class="task-actions">
+      <button (click)="startEdit()" class="btn btn-edit">
+        Edit
+      </button>
+      <button 
+        (click)="task.archived ? unarchiveTask() : archiveTask()" 
+        class="btn"
+        [class.btn-archive]="!task.archived"
+        [class.btn-unarchive]="task.archived"
+      >
+        {{ task.archived ? 'Unarchive' : 'Archive' }}
+      </button>
+      <button (click)="deleteTask()" class="btn btn-delete">
+        Delete
+      </button>
+    </div>
+  </div>
+  
+  <div class="task-edit-form" *ngIf="isEditing">
+    <div class="form-group">
+      <label for="edit-title">Title</label>
+      <input 
+        type="text" 
+        id="edit-title"
+        [(ngModel)]="editedTask.title" 
+        class="form-control"
+        required
+      >
+    </div>
+    
+    <div class="form-group">
+      <label for="edit-description">Description</label>
+      <textarea 
+        id="edit-description"
+        [(ngModel)]="editedTask.description" 
+        class="form-control"
+        rows="2"
+      ></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="edit-dueDate">Due Date</label>
+      <input 
+        type="date" 
+        id="edit-dueDate"
+        [(ngModel)]="editedTask.dueDate" 
+        class="form-control"
+      >
+    </div>
+
+    <div class="form-group">
+      <label for="edit-priority">Priority</label>
+      <select 
+        id="edit-priority"
+        [(ngModel)]="editedTask.priority" 
+        class="form-control"
+      >
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+    </div>
+    
+    <div class="edit-actions">
+      <button (click)="saveEdit()" class="btn btn-save" [disabled]="!editedTask.title?.trim()">
+        Save
+      </button>
+      <button (click)="cancelEdit()" class="btn btn-cancel">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" [class.show]="showDeleteToast" [style.display]="showDeleteToast ? 'block' : 'none'" tabindex="-1" (click)="cancelDelete()">
+  <div class="modal-dialog modal-dialog-centered" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Task</h5>
+        <button type="button" class="btn-close" (click)="cancelDelete()"></button>
+      </div>
+      <div class="modal-body">
+        <p>This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="cancelDelete()">
+          Cancel
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmDelete()">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="showDeleteToast"></div>

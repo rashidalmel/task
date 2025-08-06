@@ -1,0 +1,186 @@
+<div class="task-list-container">
+  <div class="task-list-header">
+    <h2>Task List</h2>
+    <div class="sort-dropdown-container">
+      <label for="sort-select" class="sort-label">Sort by:</label>
+      <select 
+        id="sort-select"
+        [(ngModel)]="currentSort"
+        (change)="setSort(currentSort)"
+        class="sort-select"
+      >
+        <option value="manual">Manual (Drag & Drop)</option>
+        <option value="date">Date (Newest First)</option>
+        <option value="priority">Priority (High to Low)</option>
+        <option value="status">Status (Pending First)</option>
+        <option value="title">Title (A-Z)</option>
+      </select>
+    </div>
+  </div>
+  
+  <!-- Search Section -->
+  <div class="search-section" [@sectionAnimation]>
+    <div class="search-container">
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm"
+        placeholder="Search tasks..."
+        class="search-input"
+      >
+      <button 
+        *ngIf="searchTerm" 
+        (click)="clearSearch()" 
+        class="clear-search-btn"
+        title="Clear search"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter and Sort Section -->
+  <div class="filter-section" [@sectionAnimation]>
+    <div class="filter-buttons" [@filterAnimation]="currentFilter">
+      <button 
+        (click)="setFilter('all')" 
+        [class.active]="currentFilter === 'all'"
+        class="filter-btn"
+      >
+        All ({{ showArchived ? archivedTasksCount : activeTasksCount }})
+      </button>
+      <button 
+        (click)="setFilter('pending')" 
+        [class.active]="currentFilter === 'pending'"
+        class="filter-btn"
+      >
+        Pending ({{ pendingTasks }})
+      </button>
+      <button 
+        (click)="setFilter('completed')" 
+        [class.active]="currentFilter === 'completed'"
+        class="filter-btn"
+      >
+        Completed ({{ completedTasks }})
+      </button>
+      <button 
+        (click)="setFilter('overdue')" 
+        [class.active]="currentFilter === 'overdue'"
+        class="filter-btn overdue-filter"
+      >
+        Overdue ({{ overdueTasks }})
+      </button>
+             <button 
+         (click)="toggleArchivedView()" 
+         class="btn archive-filter"
+       >
+         {{ showArchived ? 'Active' : 'Archived' }} ({{ showArchived ? activeTasksCount : archivedTasksCount }})
+       </button>
+    </div>
+  </div>
+
+  <!-- Bulk Actions Section -->
+  <div class="bulk-actions-section" *ngIf="filteredTasks.length > 0" [@sectionAnimation]>
+    <div class="bulk-actions-container">
+      <div class="select-all-container">
+        <input 
+          type="checkbox" 
+          [checked]="allFilteredTasksSelected"
+          (change)="toggleSelectAll()"
+          class="select-all-checkbox"
+          id="select-all"
+        >
+        <label for="select-all" class="select-all-label">
+          {{ hasSelectedTasks ? 'Clear All' : 'Select All' }} ({{ selectedTasksCount }} selected)
+        </label>
+      </div>
+      
+      <div class="bulk-actions-buttons" *ngIf="hasSelectedTasks">
+        <button 
+          (click)="bulkCompleteTasks()"
+          [disabled]="!canBulkComplete"
+          class="btn btn-primary bulk-complete-btn"
+          title="Complete selected tasks"
+        >
+          <span class="bulk-btn-icon">✓</span>
+          Complete Selected ({{ selectedTasksCount }})
+        </button>
+        <button 
+          (click)="clearSelection()"
+          class="btn btn-danger bulk-delete-btn"
+          title="Delete selected tasks"
+        >
+          <span class="bulk-btn-icon">🗑️</span>
+          Delete Selected ({{ selectedTasksCount }})
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks Container -->
+  <div class="tasks-container" *ngIf="filteredTasks.length > 0; else noTasks">
+    <div 
+      cdkDropList 
+      (cdkDropListDropped)="onDrop($event)"
+      class="task-drop-list"
+      [@taskListAnimation]="filteredTasks.length"
+    >
+      <div 
+        *ngFor="let task of filteredTasks; trackBy: trackByTaskId"
+        cdkDrag
+        [class.task-drag-item]="currentSort === 'manual'"
+        [class.task-no-drag]="currentSort !== 'manual'"
+        [@taskItemAnimation]="task.id"
+        [class.task-selected]="isTaskSelected(task.id)"
+      >
+        <div class="task-selection-container">
+          <input 
+            type="checkbox" 
+            [checked]="isTaskSelected(task.id)"
+            (change)="toggleTaskSelection(task.id)"
+            class="task-selection-checkbox"
+            [id]="'task-' + task.id"
+          >
+          <label [for]="'task-' + task.id" class="task-selection-label"></label>
+        </div>
+        <app-task-item 
+          [task]="task"
+          (taskUpdated)="onTaskUpdated($event)"
+          (taskDeleted)="onTaskDeleted($event)"
+          (taskToggled)="onTaskToggled($event)"
+          (taskArchived)="onTaskArchived($event)"
+          (taskUnarchived)="onTaskUnarchived($event)"
+        ></app-task-item>
+      </div>
+    </div>
+  </div>
+  
+  <!-- No Tasks Template -->
+  <ng-template #noTasks>
+    <div class="no-tasks">
+      <p *ngIf="searchTerm || currentFilter !== 'all'">
+        No tasks found matching your criteria.
+      </p>
+      <p *ngIf="!searchTerm && currentFilter === 'all'">
+        No tasks yet. Add your first task above!
+      </p>
+    </div>
+  </ng-template>
+
+  <!-- Bulk Delete Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showDeleteConfirmation" (click)="cancelBulkDelete()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Confirm Delete</h3>
+        <button class="modal-close" (click)="cancelBulkDelete()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete {{ selectedTasksCount }} selected task{{ selectedTasksCount > 1 ? 's' : '' }}?</p>
+        <p class="modal-warning">This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="cancelBulkDelete()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmBulkDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
