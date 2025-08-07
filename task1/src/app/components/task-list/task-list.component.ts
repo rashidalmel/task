@@ -6,7 +6,7 @@ import { trigger, transition, style, animate, query, stagger } from '@angular/an
 import { Task } from '../../models/task.model';
 import { TaskItemComponent } from '../task-item/task-item.component';
 
-export type FilterType = 'all' | 'completed' | 'pending' | 'overdue';
+export type FilterType = 'all' | 'completed' | 'pending' | 'overdue' | 'archived';
 export type SortType = 'date' | 'priority' | 'status' | 'title' | 'manual';
 
 @Component({
@@ -62,6 +62,7 @@ export class TaskListComponent {
   @Output() taskUpdated = new EventEmitter<Task>();
   @Output() taskDeleted = new EventEmitter<number>();
   @Output() taskToggled = new EventEmitter<Task>();
+  @Output() taskArchived = new EventEmitter<Task>();
   @Output() tasksReordered = new EventEmitter<Task[]>();
   @Output() tasksBulkCompleted = new EventEmitter<Task[]>();
   @Output() tasksBulkDeleted = new EventEmitter<number[]>();
@@ -69,9 +70,8 @@ export class TaskListComponent {
   currentFilter: FilterType = 'all';
   currentSort: SortType = 'manual';
   searchTerm: string = '';
-  selectedTasks: Set<number> = new Set();
-  selectAllMode: boolean = false;
   showDeleteConfirmation: boolean = false;
+  justBulkCompleted: boolean = false;
 
   get filteredTasks(): Task[] {
     let filtered = [...this.tasks];
@@ -88,16 +88,20 @@ export class TaskListComponent {
     // Apply status filter
     switch (this.currentFilter) {
       case 'completed':
-        filtered = filtered.filter(task => task.completed);
+        filtered = filtered.filter(task => task.completed && !task.archived);
         break;
       case 'pending':
-        filtered = filtered.filter(task => !task.completed);
+        filtered = filtered.filter(task => !task.completed && !task.archived);
         break;
       case 'overdue':
-        filtered = filtered.filter(task => this.isOverdue(task));
+        filtered = filtered.filter(task => this.isOverdue(task) && !task.archived);
+        break;
+      case 'archived':
+        filtered = filtered.filter(task => task.archived);
         break;
       default:
-        // Keep all tasks
+        // Keep all non-archived tasks for 'all' filter
+        filtered = filtered.filter(task => !task.archived);
         break;
     }
 
@@ -106,19 +110,23 @@ export class TaskListComponent {
   }
 
   get totalTasks(): number {
-    return this.tasks.length;
+    return this.tasks.filter(task => !task.archived).length;
   }
 
   get completedTasks(): number {
-    return this.tasks.filter(task => task.completed).length;
+    return this.tasks.filter(task => task.completed && !task.archived).length;
   }
 
   get pendingTasks(): number {
-    return this.tasks.filter(task => !task.completed).length;
+    return this.tasks.filter(task => !task.completed && !task.archived).length;
   }
 
   get overdueTasks(): number {
-    return this.tasks.filter(task => this.isOverdue(task)).length;
+    return this.tasks.filter(task => this.isOverdue(task) && !task.archived).length;
+  }
+
+  get archivedTasks(): number {
+    return this.tasks.filter(task => task.archived).length;
   }
 
   get filteredTasksCount(): number {
@@ -126,23 +134,22 @@ export class TaskListComponent {
   }
 
   get selectedTasksCount(): number {
-    return this.selectedTasks.size;
+    return this.filteredTasks.filter(task => task.selected || false).length;
   }
 
   get hasSelectedTasks(): boolean {
-    return this.selectedTasks.size > 0;
+    return this.filteredTasks.some(task => task.selected || false);
   }
 
   get allFilteredTasksSelected(): boolean {
     return this.filteredTasks.length > 0 && 
-           this.filteredTasks.every(task => this.selectedTasks.has(task.id));
+           this.filteredTasks.every(task => task.selected || false);
   }
 
   get canBulkComplete(): boolean {
-    return this.hasSelectedTasks && Array.from(this.selectedTasks).some(id => {
-      const task = this.tasks.find(t => t.id === id);
-      return task && !task.completed;
-    });
+    return this.hasSelectedTasks && this.filteredTasks.some(task => 
+      task.selected || false
+    );
   }
 
   setFilter(filter: FilterType) {
@@ -163,6 +170,15 @@ export class TaskListComponent {
 
   onTaskToggled(task: Task) {
     this.taskToggled.emit(task);
+  }
+
+  onTaskArchived(task: Task) {
+    this.taskArchived.emit(task);
+  }
+
+  onTaskSelectionChanged() {
+    // This method is called when a task's selection state changes
+    // No action needed here as the UI will update automatically
   }
 
   trackByTaskId(index: number, task: Task): number {
@@ -186,40 +202,56 @@ export class TaskListComponent {
 
   // Bulk action methods
   toggleTaskSelection(taskId: number) {
-    if (this.selectedTasks.has(taskId)) {
-      this.selectedTasks.delete(taskId);
-    } else {
-      this.selectedTasks.add(taskId);
+    // Use selection status for bulk operations
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task) {
+      const updatedTask = { ...task, selected: !(task.selected || false) };
+      this.taskUpdated.emit(updatedTask);
     }
   }
 
   toggleSelectAll() {
     if (this.hasSelectedTasks) {
       // If tasks are selected, clear all selections
-      this.selectedTasks.clear();
-      this.selectAllMode = false;
+      this.filteredTasks.forEach(task => {
+        if (task.selected || false) {
+          const updatedTask = { ...task, selected: false };
+          this.taskUpdated.emit(updatedTask);
+        }
+      });
     } else {
       // If no tasks are selected, select all filtered tasks
       this.filteredTasks.forEach(task => {
-        this.selectedTasks.add(task.id);
+        if (!(task.selected || false)) {
+          const updatedTask = { ...task, selected: true };
+          this.taskUpdated.emit(updatedTask);
+        }
       });
-      this.selectAllMode = true;
     }
   }
 
   isTaskSelected(taskId: number): boolean {
-    return this.selectedTasks.has(taskId);
+    const task = this.tasks.find(t => t.id === taskId);
+    return task ? (task.selected || false) : false;
   }
 
   bulkCompleteTasks() {
     const tasksToComplete = this.filteredTasks.filter(task => 
-      this.selectedTasks.has(task.id) && !task.completed
+      task.selected || false
     );
     
     if (tasksToComplete.length > 0) {
-      this.tasksBulkCompleted.emit(tasksToComplete);
-      this.selectedTasks.clear();
-      this.selectAllMode = false;
+      // Mark selected tasks as completed
+      tasksToComplete.forEach(task => {
+        const updatedTask = { ...task, completed: true, selected: false };
+        this.taskUpdated.emit(updatedTask);
+      });
+      
+      this.justBulkCompleted = true;
+      // Reset flag after a short delay
+      setTimeout(() => {
+        this.justBulkCompleted = false;
+      }, 500);
     }
   }
 
@@ -232,10 +264,10 @@ export class TaskListComponent {
 
   confirmBulkDelete() {
     // Delete all selected tasks
-    const taskIdsToDelete = Array.from(this.selectedTasks);
+    const taskIdsToDelete = this.filteredTasks
+      .filter(task => task.selected || false)
+      .map(task => task.id);
     this.tasksBulkDeleted.emit(taskIdsToDelete);
-    this.selectedTasks.clear();
-    this.selectAllMode = false;
     this.showDeleteConfirmation = false;
   }
 

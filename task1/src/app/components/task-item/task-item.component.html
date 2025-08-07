@@ -6,10 +6,10 @@
     <div class="task-header">
       <input 
         type="checkbox" 
-        [checked]="task.completed || isSelected"
-        (change)="handleCheckboxChange($event)"
+        [checked]="task.completed || (task.selected || false)"
+        (change)="toggleComplete()"
         class="task-checkbox"
-        [class.selection-mode]="isSelected && !task.completed"
+        title="Mark as completed or select for bulk operations"
       >
       <h3 class="task-title" [class.strikethrough]="task.completed">
         {{ task.title }}
@@ -36,6 +36,9 @@
     <div class="task-actions">
       <button (click)="startEdit()" class="btn btn-edit">
         Edit
+      </button>
+      <button (click)="archiveTask()" class="btn btn-archive">
+        {{ task.archived ? 'Unarchive' : 'Archive' }}
       </button>
       <button (click)="deleteTask()" class="btn btn-delete">
         Delete
@@ -97,7 +100,7 @@
       </button>
     </div>
   </div>
-</div>
+
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" [class.show]="showDeleteToast" [style.display]="showDeleteToast ? 'block' : 'none'" tabindex="-1" (click)="cancelDelete()">

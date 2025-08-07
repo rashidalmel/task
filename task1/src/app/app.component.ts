@@ -122,6 +122,14 @@ export class AppComponent implements OnInit {
     }
   }
 
+  onTaskArchived(archivedTask: Task) {
+    const index = this.tasks.findIndex(t => t.id === archivedTask.id);
+    if (index !== -1) {
+      this.tasks[index] = archivedTask;
+      this.saveTasksToStorage();
+    }
+  }
+
   onTasksReordered(reorderedTasks: Task[]) {
     this.tasks = reorderedTasks;
     this.saveTasksToStorage();

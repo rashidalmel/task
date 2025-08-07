@@ -28,7 +28,8 @@ export class StorageService {
           createdAt: new Date(task.createdAt),
           dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
           priority: task.priority || 'Medium', // Default to Medium if priority doesn't exist
-          archived: task.archived || false // Default to false if archived doesn't exist
+          archived: task.archived || false, // Default to false if archived doesn't exist
+          selected: task.selected || false // Default to false if selected doesn't exist
         }));
       }
     } catch (error) {

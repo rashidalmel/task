@@ -69,6 +69,13 @@
       >
         Overdue ({{ overdueTasks }})
       </button>
+      <button 
+        (click)="setFilter('archived')" 
+        [class.active]="currentFilter === 'archived'"
+        class="filter-btn archive-filter"
+      >
+        Archived ({{ archivedTasks }})
+      </button>
 
     </div>
   </div>
@@ -133,7 +140,8 @@
           (taskUpdated)="onTaskUpdated($event)"
           (taskDeleted)="onTaskDeleted($event)"
           (taskToggled)="onTaskToggled($event)"
-          (taskSelectionChanged)="toggleTaskSelection(task.id)"
+          (taskArchived)="onTaskArchived($event)"
+          (taskSelectionChanged)="onTaskSelectionChanged()"
         ></app-task-item>
       </div>
     </div>
