@@ -136,12 +136,10 @@
       >
         <app-task-item 
           [task]="task"
-          [isSelected]="isTaskSelected(task.id)"
           (taskUpdated)="onTaskUpdated($event)"
           (taskDeleted)="onTaskDeleted($event)"
           (taskToggled)="onTaskToggled($event)"
           (taskArchived)="onTaskArchived($event)"
-          (taskSelectionChanged)="onTaskSelectionChanged()"
         ></app-task-item>
       </div>
     </div>

@@ -16,8 +16,8 @@ export class TaskItemComponent {
   @Output() taskUpdated = new EventEmitter<Task>();
   @Output() taskDeleted = new EventEmitter<number>();
   @Output() taskToggled = new EventEmitter<Task>();
-  @Output() taskSelectionChanged = new EventEmitter<void>();
   @Output() taskArchived = new EventEmitter<Task>();
+  @Output() taskSelectionChanged = new EventEmitter<void>();
 
   isEditing = false;
   editedTask: Partial<Task> = {};
@@ -85,50 +85,31 @@ export class TaskItemComponent {
     this.showDeleteToast = false;
   }
 
+  toggleComplete() {
+    const updatedTask: Task = {
+      ...this.task,
+      completed: !this.task.completed,
+      priority: this.task.priority || 'Medium'
+    };
+    this.taskToggled.emit(updatedTask);
+  }
+
   archiveTask() {
     const updatedTask: Task = {
       ...this.task,
-      archived: !this.task.archived,
+      archived: true,
       priority: this.task.priority || 'Medium'
     };
     this.taskArchived.emit(updatedTask);
-    
-    // Show success toast when task is archived/unarchived
-    const action = updatedTask.archived ? 'archived' : 'unarchived';
-    this.toastService.show(`Task ${action} successfully!`, 'success');
   }
 
-  toggleComplete() {
-    // If task is completed, uncomplete it
-    if (this.task.completed) {
-      const updatedTask: Task = {
-        ...this.task,
-        completed: false,
-        priority: this.task.priority || 'Medium'
-      };
-      this.taskToggled.emit(updatedTask);
-    } else {
-      // If task is not completed, check if it's selected for bulk operations
-      if (this.task.selected) {
-        // If selected, unselect it
-        const updatedTask: Task = {
-          ...this.task,
-          selected: false,
-          priority: this.task.priority || 'Medium'
-        };
-        this.taskUpdated.emit(updatedTask);
-      } else {
-        // If not selected, select it for bulk operations
-        const updatedTask: Task = {
-          ...this.task,
-          selected: true,
-          priority: this.task.priority || 'Medium'
-        };
-        this.taskUpdated.emit(updatedTask);
-      }
-    }
-    
-    // Emit selection change for bulk actions
+  toggleSelection() {
+    const updatedTask: Task = {
+      ...this.task,
+      selected: !this.isSelected,
+      priority: this.task.priority || 'Medium'
+    };
+    this.taskUpdated.emit(updatedTask);
     this.taskSelectionChanged.emit();
   }
 
