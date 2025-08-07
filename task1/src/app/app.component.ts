@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { Task } from './models/task.model';
 import { AddTaskComponent } from './components/add-task/add-task.component';
 import { TaskListComponent } from './components/task-list/task-list.component';
+
 import { ThemeToggleComponent } from './components/theme-toggle/theme-toggle.component';
 import { ToastComponent } from './components/toast/toast.component';
 import { StorageService } from './services/storage.service';

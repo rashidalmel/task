@@ -215,7 +215,7 @@ input, textarea {
 
 /* Main App Styles */
 .app-container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -422,6 +422,7 @@ textarea.form-control {
   gap: 10px;
   flex-wrap: wrap;
   flex: 1;
+  justify-content: flex-start;
 }
 
 .filter-btn {
@@ -1224,10 +1225,11 @@ color: white;
 /* Filter and Sort Section Layout */
 .filter-section {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-top: 15px;
   gap: 15px;
+  flex-wrap: wrap;
 }
 
 .filter-buttons {

@@ -21,6 +21,8 @@
     "@angular/router": "^17.3.0",
     "@popperjs/core": "^2.11.8",
     "bootstrap": "^5.3.7",
+    "highcharts": "^12.3.0",
+    "highcharts-angular": "^4.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
