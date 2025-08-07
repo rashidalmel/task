@@ -6,8 +6,8 @@
     <div class="task-header">
       <input 
         type="checkbox" 
-        [checked]="task.completed"
-        (change)="toggleComplete()"
+        [checked]="task.selected || false"
+        (change)="toggleSelection()"
         class="task-checkbox"
       >
       <h3 class="task-title" [class.strikethrough]="task.completed">

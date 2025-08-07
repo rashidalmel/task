@@ -106,7 +106,7 @@ export class TaskItemComponent {
   toggleSelection() {
     const updatedTask: Task = {
       ...this.task,
-      selected: !this.isSelected,
+      selected: !(this.task.selected || false),
       priority: this.task.priority || 'Medium'
     };
     this.taskUpdated.emit(updatedTask);
