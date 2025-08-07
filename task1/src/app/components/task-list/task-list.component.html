@@ -157,6 +157,11 @@
     </div>
   </ng-template>
 
+  <!-- Task Statistics Chart -->
+  <div class="chart-section" *ngIf="tasks.length > 0">
+    <app-task-chart [tasks]="tasks"></app-task-chart>
+  </div>
+
   <!-- Bulk Delete Confirmation Modal -->
   <div class="modal-overlay" *ngIf="showDeleteConfirmation" (click)="cancelBulkDelete()">
     <div class="modal-content" (click)="$event.stopPropagation()">

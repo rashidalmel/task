@@ -36,8 +36,11 @@
       <button (click)="startEdit()" class="btn btn-edit">
         Edit
       </button>
-      <button (click)="archiveTask()" class="btn btn-archive" title="Archive task">
+      <button *ngIf="!task.archived" (click)="archiveTask()" class="btn btn-archive" title="Archive task">
         Archive
+      </button>
+      <button *ngIf="task.archived" (click)="unarchiveTask()" class="btn btn-unarchive" title="Unarchive task">
+        Unarchive
       </button>
       <button (click)="deleteTask()" class="btn btn-delete">
         Delete

@@ -101,6 +101,17 @@ export class TaskItemComponent {
       priority: this.task.priority || 'Medium'
     };
     this.taskArchived.emit(updatedTask);
+    this.toastService.show('Task archived successfully!', 'success');
+  }
+
+  unarchiveTask() {
+    const updatedTask: Task = {
+      ...this.task,
+      archived: false,
+      priority: this.task.priority || 'Medium'
+    };
+    this.taskArchived.emit(updatedTask);
+    this.toastService.show('Task unarchived successfully!', 'success');
   }
 
   toggleSelection() {

@@ -5,6 +5,7 @@ import { CdkDragDrop, CdkDrag, CdkDropList, moveItemInArray } from '@angular/cdk
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 import { Task } from '../../models/task.model';
 import { TaskItemComponent } from '../task-item/task-item.component';
+import { TaskChartComponent } from '../task-chart/task-chart.component';
 
 export type FilterType = 'all' | 'completed' | 'pending' | 'overdue' | 'archived';
 export type SortType = 'date' | 'priority' | 'status' | 'title' | 'manual';
@@ -12,7 +13,7 @@ export type SortType = 'date' | 'priority' | 'status' | 'title' | 'manual';
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, CdkDrag, CdkDropList, TaskItemComponent],
+  imports: [CommonModule, FormsModule, CdkDrag, CdkDropList, TaskItemComponent, TaskChartComponent],
   templateUrl: './task-list.component.html',
   animations: [
     trigger('taskListAnimation', [

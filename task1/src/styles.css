@@ -363,6 +363,9 @@ textarea.form-control {
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border: 1px solid #e1e5e9;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .task-list-container h2 {
@@ -449,9 +452,10 @@ textarea.form-control {
 }
 
 .tasks-container {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
 }
 
 .no-tasks {
@@ -475,6 +479,9 @@ textarea.form-control {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   will-change: transform, opacity;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .task-item:hover {
@@ -492,6 +499,7 @@ textarea.form-control {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  flex: 1;
 }
 
 .task-header {
@@ -557,7 +565,7 @@ textarea.form-control {
 .task-actions {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: auto;
 }
 
 .btn-edit {
@@ -1008,9 +1016,10 @@ color: white;
 
 /* Drag and Drop Styles */
 .task-drop-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
 }
 
 .task-drag-item {
@@ -1351,6 +1360,12 @@ color: white;
   .edit-actions {
     flex-direction: column;
   }
+  
+  .tasks-container,
+  .task-drop-list {
+    /* grid-template-columns: 1fr; */
+    gap: 15px;
+  }
 }
 
 /* Custom Confirmation Modal */
@@ -1557,14 +1572,14 @@ color: white;
 }
 
 .btn-unarchive {
-  background: #17a2b8;
-  border-color: #17a2b8;
+  background: #6c757d;
+  border-color: #6c757d;
   color: white;
 }
 
 .btn-unarchive:hover {
-  background: #138496;
-  border-color: #117a8b;
+  background: #5a6268;
+  border-color: #545b62;
 }
 
 /* Archive filter button */
@@ -1586,8 +1601,8 @@ color: white;
 }
 
 .dark-theme .btn-unarchive {
-  background: #17a2b8;
-  border-color: #17a2b8;
+  background: #6c757d;
+  border-color: #6c757d;
 }
 
 .dark-theme .archive-filter {
@@ -1600,4 +1615,116 @@ color: white;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+}
+
+/* Task Chart Styles */
+.chart-section {
+  margin-top: 30px;
+  padding: 20px 0;
+  border-top: 1px solid #e1e5e9;
+}
+
+.charts-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.task-chart-container {
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+  width: 450px;
+  max-width: 450px;
+  margin: 0;
+  overflow: hidden;
+}
+
+.task-chart-container .chart {
+  width: 100% !important;
+  height: 280px !important;
+}
+
+/* Force Highcharts SVG to be responsive */
+.task-chart-container .chart svg {
+  width: 100% !important;
+  height: auto !important;
+  max-width: 100% !important;
+}
+
+.task-chart-container .chart .highcharts-container {
+  width: 100% !important;
+  height: auto !important;
+}
+
+.task-chart-container .chart .highcharts-root {
+  width: 100% !important;
+  height: auto !important;
+}
+
+.no-data-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.no-data-message p {
+  margin: 0;
+  font-size: 16px;
+}
+
+/* Dark theme chart styles */
+.dark-theme .chart-section {
+  border-top-color: #4a5568;
+}
+
+.dark-theme .task-chart-container {
+  background: #2d3748;
+  border-color: #4a5568;
+}
+
+.dark-theme .no-data-message {
+  color: #a0aec0;
+}
+
+/* Responsive charts */
+@media (max-width: 768px) {
+  .chart-section {
+    margin-top: 20px;
+  }
+  
+  .charts-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  .task-chart-container {
+    padding: 10px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0;
+  }
+  
+  .task-chart-container .chart {
+    height: 220px !important;
+  }
+}
+
+@media (max-width: 1000px) and (min-width: 769px) {
+  .charts-container {
+    flex-direction: row;
+    justify-content: center;
+    gap: 15px;
+  }
+  
+  .task-chart-container {
+    width: 400px;
+    max-width: 400px;
+  }
 }

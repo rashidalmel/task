@@ -1,0 +1,23 @@
+<div class="charts-container" *ngIf="tasks.length > 0">
+  <!-- Status Chart -->
+  <div class="task-chart-container">
+    <highcharts-chart 
+      [Highcharts]="Highcharts"
+      [options]="statusChartOptions"
+      class="chart">
+    </highcharts-chart>
+  </div>
+  
+  <!-- Priority Chart -->
+  <div class="task-chart-container">
+    <highcharts-chart 
+      [Highcharts]="Highcharts"
+      [options]="priorityChartOptions"
+      class="chart">
+    </highcharts-chart>
+  </div>
+</div>
+
+<div class="no-data-message" *ngIf="tasks.length === 0">
+  <p>No tasks available to display charts</p>
+</div>
