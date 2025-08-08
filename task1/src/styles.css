@@ -1879,14 +1879,15 @@ textarea.form-control {
 
 /* Archive filter button */
 .archive-filter {
-  background: #6f42c1;
-  border-color: #6f42c1;
-  color: white;
+  /* background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); */
+  border-color: #e1e5e9;
+  color: #666666;
 }
 
 .archive-filter:hover {
-  background: #5a32a3;
-  border-color: #4c2b8a;
+  /* background: linear-gradient(135deg, #4b5563 0%, #374151 100%); */
+  border-color: #666666;
+  color: #4b5563;
 }
 
 /* Dark theme archive buttons */
@@ -1901,8 +1902,8 @@ textarea.form-control {
 }
 
 .dark-theme .archive-filter {
-  background: #6f42c1;
-  border-color: #6f42c1;
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  border-color: #6b7280;
 }
 
 .task-list-header {
