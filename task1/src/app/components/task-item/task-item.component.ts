@@ -22,6 +22,7 @@ export class TaskItemComponent {
   isEditing = false;
   editedTask: Partial<Task> = {};
   showDeleteToast = false;
+  isDescriptionExpanded = false;
 
   constructor(private toastService: ToastService) {}
 
@@ -164,5 +165,13 @@ export class TaskItemComponent {
       default:
         return '#6c757d';
     }
+  }
+
+  isDescriptionLong(): boolean {
+    return !!(this.task.description && this.task.description.length > 120);
+  }
+
+  toggleDescription(): void {
+    this.isDescriptionExpanded = !this.isDescriptionExpanded;
   }
 }

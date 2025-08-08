@@ -1,35 +1,45 @@
 <div class="task-item" 
      [class.completed]="task.completed"
-     [class.overdue]="isOverdue()"
-     [class]="getPriorityClass()">
+     [class.overdue]="isOverdue()">
   <div class="task-content" *ngIf="!isEditing">
     <div class="task-header">
       <input 
         type="checkbox" 
-        [checked]="task.selected || false"
-        (change)="toggleSelection()"
+        [checked]="task.completed"
+        (change)="toggleComplete()"
         class="task-checkbox"
+        title="Mark as {{ task.completed ? 'incomplete' : 'complete' }}"
       >
-      <h3 class="task-title" [class.strikethrough]="task.completed">
-        {{ task.title }}
-      </h3>
+      <div class="task-title-container">
+        <h3 class="task-title" [class.strikethrough]="task.completed">
+          {{ task.title }}
+        </h3>
+        <div class="task-description-container" *ngIf="task.description">
+          <p class="task-description" [class.expanded]="isDescriptionExpanded">
+            {{ task.description }}
+          </p>
+          <button 
+            *ngIf="isDescriptionLong()" 
+            class="read-more-btn" 
+            (click)="toggleDescription()"
+            type="button"
+          >
+            {{ isDescriptionExpanded ? 'Read less' : 'Read more' }}
+          </button>
+        </div>
+      </div>
       <span class="priority-badge-top-right" [class]="getPriorityClass()">
         {{ task.priority || 'Medium' }}
       </span>
     </div>
     
-    <p class="task-description" *ngIf="task.description">
-      {{ task.description }}
-    </p>
-    
-    <div class="task-meta">
-      <small class="task-date">
-        Created: {{ task.createdAt | date:'short' }}
-      </small>
-      <small class="task-due-date" *ngIf="task.dueDate" [class.overdue]="isOverdue()">
-        Due: {{ getDueDateText() }}
-        <span class="overdue-badge" *ngIf="isOverdue()">OVERDUE</span>
-      </small>
+    <div class="task-meta" *ngIf="task.dueDate">
+      <div class="task-dates">
+        <small class="task-due-date" [class.overdue]="isOverdue()">
+          Due: {{ getDueDateText() }}
+          <span class="overdue-badge" *ngIf="isOverdue()">OVERDUE</span>
+        </small>
+      </div>
     </div>
     
     <div class="task-actions">
